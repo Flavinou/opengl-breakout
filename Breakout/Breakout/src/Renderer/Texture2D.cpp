@@ -6,6 +6,7 @@ Texture2D::Texture2D(const int width, const int height, const int nbChannels)
     : m_ID(0), m_Width(width), m_Height(height), m_Channels(nbChannels)
 {
     glGenTextures(1, &m_ID);
+    glBindTexture(GL_TEXTURE_2D, m_ID);
 }
 
 void Texture2D::Bind(const unsigned int slot) const

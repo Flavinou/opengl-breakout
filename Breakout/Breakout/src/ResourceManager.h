@@ -27,6 +27,6 @@ private:
     friend class Shader;
     friend class Texture2D;
 private:
-    std::unordered_map<std::string, std::weak_ptr<Shader>> m_Shaders;
-    std::unordered_map<std::string, std::weak_ptr<Texture2D>> m_Textures;
+    std::unordered_map<std::string, std::shared_ptr<Shader>> m_Shaders;
+    std::unordered_map<std::string, std::shared_ptr<Texture2D>> m_Textures;
 };

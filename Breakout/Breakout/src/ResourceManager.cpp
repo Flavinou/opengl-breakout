@@ -16,24 +16,44 @@ ResourceManager& ResourceManager::Instance()
 std::shared_ptr<Shader> ResourceManager::LoadShader(const std::string& name, const char* vertexPath, const char* fragmentPath,
                                                     const char* geometryPath /* = nullptr */)
 {
-    m_Shaders[name] = LoadShaderFromFile(vertexPath, fragmentPath, geometryPath);
-    return m_Shaders[name].lock();
+    auto shader = LoadShaderFromFile(vertexPath, fragmentPath, geometryPath);
+    m_Shaders[name] = shader;
+    return shader;
 }
 
-std::shared_ptr<Shader> ResourceManager::GetShader(const std::string& name)
-{
-    return m_Shaders[name].lock();
+std::shared_ptr<Shader> ResourceManager::GetShader(const std::string& name)  
+{  
+    auto it = m_Shaders.find(name);  
+    if (it != m_Shaders.end())  
+    {  
+        return it->second;  
+    }
+
+	// If shader not found, log an error message
+	std::cerr << "[ERROR] Shader: Shader '" << name << "' not found.\n";
+
+    return nullptr;  
 }
 
 std::shared_ptr<Texture2D> ResourceManager::LoadTexture(const std::string& name, const char* filePath, bool useAlphaChannel)
 {
-    m_Textures[name] = LoadTexture2DFromFile(filePath, useAlphaChannel);
-    return m_Textures[name].lock();
+	auto texture = LoadTexture2DFromFile(filePath, useAlphaChannel);
+    m_Textures[name] = texture;
+    return texture;
 }
 
 std::shared_ptr<Texture2D> ResourceManager::GetTexture(const std::string& name)
 {
-    return m_Textures[name].lock();
+    auto it = m_Textures.find(name);
+    if (it != m_Textures.end())
+    {
+        return it->second;
+    }
+
+    // If shader not found, log an error message
+    std::cerr << "[ERROR] Texture2D: Texture '" << name << "' not found.\n";
+
+    return nullptr;
 }
 
 void ResourceManager::Clear() const
@@ -41,13 +61,13 @@ void ResourceManager::Clear() const
     // Delete shaders
     for (auto& it : m_Shaders)
     {
-        glDeleteProgram(it.second.lock()->GetID());
+        glDeleteProgram(it.second->GetID());
     }
 
     // Delete textures
     for (auto& it : m_Textures)
     {
-        glDeleteTextures(1, &it.second.lock()->GetID());
+        glDeleteTextures(1, &it.second->GetID());
     }
 }
 
@@ -92,15 +112,16 @@ std::shared_ptr<Shader> ResourceManager::LoadShaderFromFile(const char* vertexPa
     const char* gShaderCode = geometryCode.c_str();
 
     // Create shader object from source code
-    auto shader = std::make_shared<Shader>(vShaderCode, fShaderCode, geometryPath != nullptr ? gShaderCode : nullptr);
-    return shader;
+    return std::make_shared<Shader>(vShaderCode, fShaderCode, geometryPath != nullptr ? gShaderCode : nullptr);
 }
 
 std::shared_ptr<Texture2D> ResourceManager::LoadTexture2DFromFile(const char* filePath, bool useAlphaChannel)
 {
     // Load image
     int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(1);
+    
+    // Coordinate system is inverted by design, this is not required
+    // stbi_set_flip_vertically_on_load(true);
 
     unsigned char* data = stbi_load(filePath, &width, &height, &nrChannels, 0);
 
