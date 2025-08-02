@@ -5,9 +5,13 @@
 
 #include <iostream>
 
+Application* Application::s_Instance = nullptr;
+
 Application::Application(int width, int height, const char* title)
 	: m_Width(width), m_Height(height), m_Title(title), m_Keys{false}
 {
+    s_Instance = this;
+
     // Initialize window
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

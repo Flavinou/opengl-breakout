@@ -1,7 +1,7 @@
 #include "Application.h"
 
-constexpr unsigned int SCREEN_WIDTH = 800;
-constexpr unsigned int SCREEN_HEIGHT = 600;
+constexpr unsigned int SCREEN_WIDTH = 1280;
+constexpr unsigned int SCREEN_HEIGHT = 720;
 
 int main(int argc, char** argv)
 {
