@@ -42,9 +42,8 @@ glm::vec2 BallObject::Move(float deltaTime, unsigned int viewportWidth)
     return m_Position;
 }
 
-void BallObject::Reset(const glm::vec2& position, const glm::vec2& velocity)
+void BallObject::Reset(const glm::vec2& position, const glm::vec2& velocity) /* override*/
 {
-    m_Position = position;
-    m_Velocity = velocity;
+    super::Reset(position, velocity);
     m_Stuck = true;
 }

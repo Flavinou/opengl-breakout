@@ -101,9 +101,14 @@ void Game::ProcessInput(float deltaTime)
 
 void Game::Update(float deltaTime)
 {
+    // Update objects positions
     m_Ball->Move(deltaTime, m_Width);
 
+    // Check for collisions
     DoCollisions();
+
+    // Loss condition
+    DoCheckState();
 }
 
 void Game::Render() const
@@ -140,21 +145,111 @@ void Game::Render() const
 void Game::DoCollisions() const
 {
     // No ball == no collision
-    if (!m_Ball)
-    {
-        return;
-    }
+    if (!m_Ball) return;
 
+    // Check collision for each brick -> greedy
     for (unsigned int i = 0; i < m_Levels[m_CurrentLevelIndex]->Size(); ++i)
     {
         GameObject* box = m_Levels[m_CurrentLevelIndex]->GetBrick(i);
         if (box == nullptr) continue;
         if (box->IsDestroyed()) continue;
 
-        if (Physics2D::CheckCollisionCircleAABB(*m_Ball, *box))
+        // Collision detection / evaluation
+        CollisionResult result = Physics2D::CheckCollisionCircleAABB(*m_Ball, *box);
+        if (!std::get<0>(result)) continue; // No collision, go on
+
+        // Destroy block if possible
+        if (!box->IsSolid())
+            box->Destroy();
+
+        // Collision resolution
+        Direction dir = std::get<1>(result);
+        glm::vec2 diff = std::get<2>(result);
+        const auto& ballVelocity = m_Ball->GetVelocity();
+        const auto& ballPosition = m_Ball->GetPosition();
+        auto radius = m_Ball->GetRadius();
+        if (dir == Direction::LEFT || dir == Direction::RIGHT) // Horizontal collision
         {
-            if (!box->IsSolid())
-                box->SetDestroyed(true);
+            // Reverse horizontal velocity
+            m_Ball->SetVelocity(glm::vec2(-ballVelocity.x, ballVelocity.y));
+
+            // Re-position ball by "penetration" amount
+            float penetration = radius - std::abs(diff.x);
+            glm::vec2 newPosition = glm::vec2(dir == Direction::LEFT ? ballPosition.x + penetration : ballPosition.x - penetration, ballPosition.y);
+            m_Ball->SetPosition(newPosition);
+        }
+        else // Vertical collision
+        {
+            // Reverse vertical velocity
+            m_Ball->SetVelocity(glm::vec2(ballVelocity.x, -ballVelocity.y));
+
+            // Re-position ball by "penetration" amount
+            float penetration = radius - std::abs(diff.y);
+            glm::vec2 newPosition = glm::vec2(ballPosition.x, dir == Direction::UP ? ballPosition.y - penetration : ballPosition.y + penetration);
+            m_Ball->SetPosition(newPosition);
         }
     }
+
+    // Check collisions ball - player
+    CollisionResult result = Physics2D::CheckCollisionCircleAABB(*m_Ball, *m_Player);
+    if (m_Ball->IsStuck() || !std::get<0>(result)) return; // Ball stuck or no detection == no collision
+
+    // If the ball collided with the player, check where it hit the board
+    // then change velocity based on where it hit the board
+    const auto& ballPos = m_Ball->GetPosition();
+    auto radius = m_Ball->GetRadius();
+    const auto& playerPos = m_Player->GetPosition();
+    auto playerSize = m_Player->GetSize();
+    float centerBoard = playerPos.x + playerSize.x / 2.0f;
+    float distance = (ballPos.x + radius) - centerBoard;
+    float amount = distance / (playerSize.x / 2.0f);
+
+    constexpr float strength = 2.0f;
+    glm::vec2 oldVelocity = m_Ball->GetVelocity();
+    glm::vec2 newVelocity = glm::vec2(INITIAL_BALL_VELOCITY.x * amount * strength, -1.0f * abs(oldVelocity.y));
+    m_Ball->SetVelocity(glm::normalize(newVelocity) * glm::length(oldVelocity));
+}
+
+void Game::DoCheckState()
+{
+    // Ball reached bottom edge -> Lose
+    if (m_Ball->GetPosition().y >= m_Height)
+    {
+        End(GameState::LOST);
+    }
+}
+
+void Game::End(GameState value) const
+{
+    // No state modification at the moment, reload the current level each time the ball is not caught by the player
+    switch (value)
+    {
+    case GameState::LOST:
+        ResetLevel();
+        ResetPlayer();
+        break;
+    case GameState::WIN:
+        break;
+    default:
+        break;
+    }
+}
+
+void Game::ResetLevel() const
+{
+    if (!m_Levels[m_CurrentLevelIndex])
+    {
+        std::cout << "[ERROR] Level not found for index " << m_CurrentLevelIndex << " !" << std::endl;
+    }
+
+    // Reload current level
+    GameLevel& level = *m_Levels[m_CurrentLevelIndex];
+    level.Load(level.GetFileName(), m_Width, m_Height / 2);
+}
+
+void Game::ResetPlayer() const
+{
+    m_Player->SetSize(PLAYER_SIZE);
+    m_Player->Reset(glm::vec2(m_Width / 2.0f - PLAYER_SIZE.x / 2.0f, m_Height - PLAYER_SIZE.y), glm::vec2(0.0f, 0.0f));
+    m_Ball->Reset(m_Player->GetPosition() + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -(BALL_RADIUS * 2.0f)), INITIAL_BALL_VELOCITY);
 }

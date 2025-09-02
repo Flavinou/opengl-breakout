@@ -34,11 +34,18 @@ public:
     ~Game() = default;
 
     GameState GetState() const { return m_State; }
+    void SetState(GameState value) { m_State = value; }
 
     void ProcessInput(float deltaTime);
     void Update(float deltaTime);
     void Render() const;
     void DoCollisions() const;
+    void DoCheckState();
+
+    void End(GameState value) const;
+
+    void ResetLevel() const;
+    void ResetPlayer() const;
     
 private:
     void Initialize();

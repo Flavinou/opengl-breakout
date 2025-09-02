@@ -6,6 +6,7 @@
 #include <sstream>
 
 GameLevel::GameLevel(const std::string& file, unsigned int viewportWidth, unsigned int viewportHeight)
+    : m_FileName(file)
 {
 	Load(file, viewportWidth, viewportHeight);
 }

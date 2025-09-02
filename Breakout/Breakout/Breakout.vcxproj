@@ -148,6 +148,7 @@
     <ClInclude Include="src\GameLevel.h" />
     <ClInclude Include="src\GameObject.h" />
     <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Math\Vector.h" />
     <ClInclude Include="src\Physics\Physics2D.h" />
     <ClInclude Include="src\Renderer\SpriteRenderer.h" />
     <ClInclude Include="src\Game.h" />

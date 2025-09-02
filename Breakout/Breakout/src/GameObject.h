@@ -17,6 +17,9 @@ public:
 	virtual ~GameObject() = default;
 
 	virtual void Draw(const std::unique_ptr<SpriteRenderer>& renderer) const;
+	virtual void Reset(const glm::vec2& position, const glm::vec2& velocity);
+
+	void Destroy() { m_Destroyed = true; }
 
 	const glm::vec2& GetPosition() const { return m_Position; }
 	void SetPosition(const glm::vec2& position) { m_Position = position; }

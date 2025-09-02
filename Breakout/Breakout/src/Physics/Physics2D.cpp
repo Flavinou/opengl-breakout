@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-bool Physics2D::CheckCollisionAABB(const GameObject& a, const GameObject& b)
+CollisionResult Physics2D::CheckCollisionAABB(const GameObject& a, const GameObject& b)
 {
     const auto& aPos = a.GetPosition();
     const auto& bPos = b.GetPosition();
@@ -16,10 +16,10 @@ bool Physics2D::CheckCollisionAABB(const GameObject& a, const GameObject& b)
     bool yCollision = aPos.y + aSize.y >= bPos.y && bPos.y + bSize.y >= aPos.y;
 
     // Collision ONLY if both axes overlap
-    return xCollision && yCollision;
+    return std::make_tuple(xCollision && yCollision, Direction::UP, glm::vec2(0.0f, 0.0f));
 }
 
-bool Physics2D::CheckCollisionCircleAABB(const BallObject& a, const GameObject& b)
+CollisionResult Physics2D::CheckCollisionCircleAABB(const BallObject& a, const GameObject& b)
 {
     const auto& aPos = a.GetPosition();
     const auto& bPos = b.GetPosition();
@@ -44,5 +44,9 @@ bool Physics2D::CheckCollisionCircleAABB(const BallObject& a, const GameObject& 
     // Get vector between circle center and AABB's closest point
     // If length <= radius, there is a collision
     difference = closest - center;
-    return glm::length(difference) < radius;
+
+
+    return glm::length(difference) <= radius ?
+        std::make_tuple(true, VectorDirection(difference), difference) :
+        std::make_tuple(false, Direction::UP, glm::vec2(0.0f, 0.0f));
 }

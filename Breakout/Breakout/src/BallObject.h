@@ -6,9 +6,11 @@
 #include <glm/glm.hpp>
 #include <memory>
 
-class BallObject : public GameObject
+class BallObject final : public GameObject
 {
 public:
+    using super = GameObject;
+
     BallObject();
     BallObject(const glm::vec2& position, const glm::vec2& velocity, const std::shared_ptr<Texture2D>& sprite, float radius);
     ~BallObject() override = default;
@@ -18,7 +20,7 @@ public:
     float GetRadius() const { return m_Radius; }
 
     glm::vec2 Move(float deltaTime, unsigned int viewportWidth);
-    void Reset(const glm::vec2& position, const glm::vec2& velocity);
+    void Reset(const glm::vec2& position, const glm::vec2& velocity) override;
 
 private:
     float m_Radius;

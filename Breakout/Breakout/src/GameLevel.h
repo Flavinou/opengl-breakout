@@ -18,6 +18,7 @@ public:
 	void Draw(const std::unique_ptr<SpriteRenderer>& renderer) const;
 	bool IsCompleted() const;
 
+	const std::string& GetFileName() { return m_FileName; }
 	GameObject* GetBrick(unsigned int index) const { return m_Bricks[index]; }
 	unsigned int GetRowCount() const { return m_RowCount; }
 	unsigned int GetColumnCount() const { return m_ColumnCount; }
@@ -30,5 +31,6 @@ private:
 private:
 	GameObject** m_Bricks = nullptr; // List of bricks in the level
 	unsigned int m_RowCount = 0, m_ColumnCount = 0;
+	std::string m_FileName; // Useful if we want to reload the level
 };
 
