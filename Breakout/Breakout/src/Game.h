@@ -33,11 +33,13 @@ public:
     Game(const Game& other) = delete;
     ~Game() = default;
 
+    GameState GetState() const { return m_State; }
+
     void ProcessInput(float deltaTime);
     void Update(float deltaTime);
-    void Render();
-
-    GameState GetState() const { return m_State; }
+    void Render() const;
+    void DoCollisions() const;
+    
 private:
     void Initialize();
 private:

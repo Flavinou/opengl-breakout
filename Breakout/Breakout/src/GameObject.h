@@ -18,15 +18,13 @@ public:
 
 	virtual void Draw(const std::unique_ptr<SpriteRenderer>& renderer) const;
 
-	glm::vec2& GetPosition() { return m_Position; }
+	const glm::vec2& GetPosition() const { return m_Position; }
 	void SetPosition(const glm::vec2& position) { m_Position = position; }
-
-	glm::vec2& GetSize() { return m_Size; }
+	const glm::vec2& GetSize() const { return m_Size; }
 	void SetSize(const glm::vec2& size) { m_Size = size; }
-
-	glm::vec2& GetVelocity() { return m_Velocity; }
+	const glm::vec2& GetVelocity() const { return m_Velocity; }
 	void SetVelocity(const glm::vec2& velocity) { m_Velocity = velocity; }
-	glm::vec4& GetColor() { return m_Color; }
+	const glm::vec4& GetColor() const { return m_Color; }
 	void SetColor(const glm::vec4& color) { m_Color = color; }
 
 	float GetRotation() const { return m_Rotation; }

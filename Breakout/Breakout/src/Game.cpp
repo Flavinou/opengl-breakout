@@ -1,12 +1,13 @@
 ﻿#include "Game.h"
 
+#include "Application.h"
+#include "Physics/Physics2D.h"
 #include "ResourceManager.h"
 
 #include <glad/glad.h>
 #include <glm/ext/matrix_clip_space.hpp>
 
 #include <iostream>
-#include "Application.h"
 
 Game::Game(const int width, const int height)
     : m_Width(width), m_Height(height), m_State(GameState::ACTIVE)
@@ -101,9 +102,11 @@ void Game::ProcessInput(float deltaTime)
 void Game::Update(float deltaTime)
 {
     m_Ball->Move(deltaTime, m_Width);
+
+    DoCollisions();
 }
 
-void Game::Render()
+void Game::Render() const
 {
     if (m_State == GameState::ACTIVE)
     {
@@ -130,6 +133,28 @@ void Game::Render()
         if (m_Ball)
         {
             m_Ball->Draw(m_SpriteRenderer);
+        }
+    }
+}
+
+void Game::DoCollisions() const
+{
+    // No ball == no collision
+    if (!m_Ball)
+    {
+        return;
+    }
+
+    for (unsigned int i = 0; i < m_Levels[m_CurrentLevelIndex]->Size(); ++i)
+    {
+        GameObject* box = m_Levels[m_CurrentLevelIndex]->GetBrick(i);
+        if (box == nullptr) continue;
+        if (box->IsDestroyed()) continue;
+
+        if (Physics2D::CheckCollisionCircleAABB(*m_Ball, *box))
+        {
+            if (!box->IsSolid())
+                box->SetDestroyed(true);
         }
     }
 }

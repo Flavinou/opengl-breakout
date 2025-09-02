@@ -13,8 +13,9 @@ public:
     BallObject(const glm::vec2& position, const glm::vec2& velocity, const std::shared_ptr<Texture2D>& sprite, float radius);
     ~BallObject() override = default;
 
-    inline void SetStuck(bool value) { m_Stuck = value; }
-    inline bool IsStuck() { return m_Stuck; }
+    void SetStuck(bool value) { m_Stuck = value; }
+    bool IsStuck() const { return m_Stuck; }
+    float GetRadius() const { return m_Radius; }
 
     glm::vec2 Move(float deltaTime, unsigned int viewportWidth);
     void Reset(const glm::vec2& position, const glm::vec2& velocity);

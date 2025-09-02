@@ -18,6 +18,7 @@ public:
 	void Draw(const std::unique_ptr<SpriteRenderer>& renderer) const;
 	bool IsCompleted() const;
 
+	GameObject* GetBrick(unsigned int index) const { return m_Bricks[index]; }
 	unsigned int GetRowCount() const { return m_RowCount; }
 	unsigned int GetColumnCount() const { return m_ColumnCount; }
 	unsigned int Size() const 
