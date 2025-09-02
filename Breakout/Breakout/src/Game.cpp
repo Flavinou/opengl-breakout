@@ -14,10 +14,6 @@ Game::Game(const int width, const int height)
     Initialize();
 }
 
-Game::~Game()
-{
-}
-
 void Game::Initialize()
 {
     // Load shaders
@@ -26,10 +22,10 @@ void Game::Initialize()
 
     // Load textures
 	resourceManager.LoadTexture("background", "resources/textures/background.jpg", false);
-	resourceManager.LoadTexture("face", "resources/textures/awesomeface.png", true);
-	resourceManager.LoadTexture("brick", "resources/textures/brick.png", false);
-	resourceManager.LoadTexture("brick_solid", "resources/textures/brick_solid.png", false);
-	auto paddleTexture = resourceManager.LoadTexture("paddle", "resources/textures/paddle.png", true);
+    resourceManager.LoadTexture("brick", "resources/textures/brick.png", false);
+    resourceManager.LoadTexture("brick_solid", "resources/textures/brick_solid.png", false);
+    auto ballTexture = resourceManager.LoadTexture("face", "resources/textures/awesomeface.png", true);
+    auto paddleTexture = resourceManager.LoadTexture("paddle", "resources/textures/paddle.png", true);
 
     // Configure shaders
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(m_Width), static_cast<float>(m_Height), 0.0f, -1.0f, 1.0f);
@@ -57,6 +53,10 @@ void Game::Initialize()
 	// Initialize player
 	glm::vec2 playerPosition(m_Width / 2.0f - PLAYER_SIZE.x, m_Height - PLAYER_SIZE.y);
     m_Player = std::make_unique<GameObject>(playerPosition, PLAYER_SIZE, paddleTexture);
+
+    // Initialize ball
+    glm::vec2 ballPosition(playerPosition + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f));
+    m_Ball = std::make_unique<BallObject>(ballPosition, INITIAL_BALL_VELOCITY, ballTexture, BALL_RADIUS);
 }
 
 void Game::ProcessInput(float deltaTime)
@@ -67,22 +67,40 @@ void Game::ProcessInput(float deltaTime)
 		auto keys = Application::Get().GetKeys();
 		auto playerPos = m_Player->GetPosition();
 		auto playerSize = m_Player->GetSize();
+        auto ballPos = m_Ball->GetPosition();
+
         if (keys[GLFW_KEY_A])
         {
             if (playerPos.x >= 0.0f)
+            {
                 m_Player->SetPosition(glm::vec2(playerPos.x - velocity, playerPos.y));
+                if (m_Ball->IsStuck())
+                {
+                    m_Ball->SetPosition(glm::vec2(ballPos.x - velocity, ballPos.y));
+                }
+            }
         }
         if (keys[GLFW_KEY_D])
         {
             if (playerPos.x <= m_Width - playerSize.x)
+            {
                 m_Player->SetPosition(glm::vec2(playerPos.x + velocity, playerPos.y));
+                if (m_Ball->IsStuck())
+                {
+                    m_Ball->SetPosition(glm::vec2(ballPos.x + velocity, ballPos.y));
+                }
+            }
+        }
+        if (keys[GLFW_KEY_SPACE])
+        {
+            m_Ball->SetStuck(false);
         }
     }
 }
 
 void Game::Update(float deltaTime)
 {
-    // TODO
+    m_Ball->Move(deltaTime, m_Width);
 }
 
 void Game::Render()
@@ -106,6 +124,12 @@ void Game::Render()
         if (m_Player)
         {
 			m_Player->Draw(m_SpriteRenderer);
+        }
+
+        // Render ball
+        if (m_Ball)
+        {
+            m_Ball->Draw(m_SpriteRenderer);
         }
     }
 }

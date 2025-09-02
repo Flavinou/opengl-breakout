@@ -14,7 +14,7 @@ public:
 	GameObject(const glm::vec2& position, const glm::vec2& size,
 		const std::shared_ptr<Texture2D>& sprite, float rotation = 0.0f, 
 		const glm::vec4& color = glm::vec4(1.0f), const glm::vec2& velocity = glm::vec2(0.0f, 0.0f));
-	~GameObject() = default;
+	virtual ~GameObject() = default;
 
 	virtual void Draw(const std::unique_ptr<SpriteRenderer>& renderer) const;
 
@@ -38,7 +38,7 @@ public:
 	void SetDestroyed(bool destroyed) { m_Destroyed = destroyed; }
 
 	const std::shared_ptr<Texture2D>& GetSprite() { return m_Sprite; }
-private:
+protected:
 	// Object state
 	glm::vec2 m_Position, m_Size, m_Velocity;
 	glm::vec4 m_Color;     // Color of the object (RGB)

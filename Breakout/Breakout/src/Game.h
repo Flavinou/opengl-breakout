@@ -2,6 +2,8 @@
 
 #include "GameLevel.h"
 #include "Renderer/SpriteRenderer.h"
+#include "GameObject.h"
+#include "BallObject.h"
 
 #include <memory>
 #include <string>
@@ -21,12 +23,15 @@ enum GameState : uint8_t
 class Game
 {
 public:
-	const glm::vec2 PLAYER_SIZE = glm::vec2(100.0f, 20.0f); // Initial player paddle size
-	const float PLAYER_VELOCITY = 500.0f; // Initial player paddle speed
+	static constexpr glm::vec2 PLAYER_SIZE = glm::vec2(100.0f, 20.0f); // Initial player paddle size
+    static constexpr float PLAYER_VELOCITY = 500.0f; // Initial player paddle speed
+
+    static constexpr float BALL_RADIUS = 12.5f;
+    static constexpr glm::vec2 INITIAL_BALL_VELOCITY = glm::vec2(100.0f, -350.0f);
 
     Game(int width, int height);
     Game(const Game& other) = delete;
-    ~Game();
+    ~Game() = default;
 
     void ProcessInput(float deltaTime);
     void Update(float deltaTime);
@@ -46,4 +51,5 @@ private:
 	unsigned int m_CurrentLevelIndex; // Current level being played
 
     std::unique_ptr<GameObject> m_Player;
+    std::unique_ptr<BallObject> m_Ball;
 };
