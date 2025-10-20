@@ -133,6 +133,7 @@
     <ClCompile Include="src\GameObject.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Physics\Physics2D.cpp" />
+    <ClCompile Include="src\Renderer\ParticleSystem.cpp" />
     <ClCompile Include="src\Renderer\SpriteRenderer.cpp" />
     <ClCompile Include="src\EntryPoint.cpp" />
     <ClCompile Include="src\Game.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Math\Vector.h" />
     <ClInclude Include="src\Physics\Physics2D.h" />
+    <ClInclude Include="src\Renderer\ParticleSystem.h" />
     <ClInclude Include="src\Renderer\SpriteRenderer.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\Renderer\Renderer.h" />
@@ -162,6 +164,8 @@
     <None Include="resources\levels\one.level" />
     <None Include="resources\levels\three.level" />
     <None Include="resources\levels\two.level" />
+    <None Include="resources\shaders\ParticleFragment.glsl" />
+    <None Include="resources\shaders\ParticleVertex.glsl" />
     <None Include="resources\shaders\SpriteFragment.glsl" />
     <None Include="resources\shaders\SpriteVertex.glsl" />
   </ItemGroup>

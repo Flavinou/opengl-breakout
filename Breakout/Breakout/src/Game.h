@@ -2,6 +2,7 @@
 
 #include "GameLevel.h"
 #include "Renderer/SpriteRenderer.h"
+#include "Renderer/ParticleSystem.h"
 #include "GameObject.h"
 #include "BallObject.h"
 
@@ -36,7 +37,7 @@ public:
     GameState GetState() const { return m_State; }
     void SetState(GameState value) { m_State = value; }
 
-    void ProcessInput(float deltaTime);
+    void ProcessInput(float deltaTime) const;
     void Update(float deltaTime);
     void Render() const;
     void DoCollisions() const;
@@ -53,12 +54,12 @@ private:
 	int m_Width, m_Height;
     GameState m_State;
 
-	std::unique_ptr<SpriteRenderer> m_SpriteRenderer;
-
     // Gameplay state
 	std::vector<std::unique_ptr<GameLevel>> m_Levels; // Array of game levels
-	unsigned int m_CurrentLevelIndex; // Current level being played
+	unsigned int m_CurrentLevelIndex = 0; // Current level being played
 
     std::unique_ptr<GameObject> m_Player;
     std::unique_ptr<BallObject> m_Ball;
+    std::unique_ptr<SpriteRenderer> m_SpriteRenderer;
+    std::unique_ptr<ParticleEmitter> m_ParticleEmitter;
 };

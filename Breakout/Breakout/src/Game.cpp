@@ -19,20 +19,25 @@ void Game::Initialize()
 {
     // Load shaders
 	auto& resourceManager = ResourceManager::Instance();
-    auto spriteShader = resourceManager.LoadShader("sprite", "resources/shaders/SpriteVertex.glsl", "resources/shaders/SpriteFragment.glsl");
+    const auto& spriteShader = resourceManager.LoadShader("sprite", "resources/shaders/SpriteVertex.glsl", "resources/shaders/SpriteFragment.glsl");
+    const auto& particleShader = resourceManager.LoadShader("particle", "resources/shaders/ParticleVertex.glsl", "resources/shaders/ParticleFragment.glsl");
 
     // Load textures
 	resourceManager.LoadTexture("background", "resources/textures/background.jpg", false);
     resourceManager.LoadTexture("brick", "resources/textures/brick.png", false);
     resourceManager.LoadTexture("brick_solid", "resources/textures/brick_solid.png", false);
-    auto ballTexture = resourceManager.LoadTexture("face", "resources/textures/awesomeface.png", true);
-    auto paddleTexture = resourceManager.LoadTexture("paddle", "resources/textures/paddle.png", true);
+    const auto& ballTexture = resourceManager.LoadTexture("face", "resources/textures/awesomeface.png", true);
+    const auto& paddleTexture = resourceManager.LoadTexture("paddle", "resources/textures/paddle.png", true);
+    const auto& particleTexture = resourceManager.LoadTexture("particle", "resources/textures/particle.png", true);
 
     // Configure shaders
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(m_Width), static_cast<float>(m_Height), 0.0f, -1.0f, 1.0f);
     spriteShader->Use();
 	spriteShader->SetInteger("u_Texture", 0);
     spriteShader->SetMatrix4("u_Projection", projection);
+
+    particleShader->Use();
+    particleShader->SetMatrix4("u_Projection", projection);
 
     // Create sprite renderer
     m_SpriteRenderer = std::make_unique<SpriteRenderer>(spriteShader);
@@ -58,9 +63,12 @@ void Game::Initialize()
     // Initialize ball
     glm::vec2 ballPosition(playerPosition + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f));
     m_Ball = std::make_unique<BallObject>(ballPosition, INITIAL_BALL_VELOCITY, ballTexture, BALL_RADIUS);
+
+    // Create particles emitter, parent it to the Ball object
+     m_ParticleEmitter = std::make_unique<ParticleEmitter>(particleShader, particleTexture, 500, m_Ball.get());
 }
 
-void Game::ProcessInput(float deltaTime)
+void Game::ProcessInput(float deltaTime) const
 {
     if (m_State == GameState::ACTIVE)
     {
@@ -107,6 +115,9 @@ void Game::Update(float deltaTime)
     // Check for collisions
     DoCollisions();
 
+    // Update particles
+    m_ParticleEmitter->Update(deltaTime);
+
     // Loss condition
     DoCheckState();
 }
@@ -132,6 +143,12 @@ void Game::Render() const
         if (m_Player)
         {
 			m_Player->Draw(m_SpriteRenderer);
+        }
+
+        // Render particles
+        if (m_ParticleEmitter)
+        {
+            m_ParticleEmitter->Render();
         }
 
         // Render ball
