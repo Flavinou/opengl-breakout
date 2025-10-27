@@ -96,7 +96,7 @@ void Application::Run()
         Renderer::Clear();
 
         // Render scene
-        m_Game->Render();
+        m_Game->Render(deltaTime);
 
         glfwSwapBuffers(m_Window);
     }

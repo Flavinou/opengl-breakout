@@ -3,6 +3,7 @@
 class Texture2D
 {
 public:
+    Texture2D() = default;
     Texture2D(int width, int height, int nbChannels);
     ~Texture2D() = default;
 

@@ -21,6 +21,7 @@ void Game::Initialize()
 	auto& resourceManager = ResourceManager::Instance();
     const auto& spriteShader = resourceManager.LoadShader("sprite", "resources/shaders/SpriteVertex.glsl", "resources/shaders/SpriteFragment.glsl");
     const auto& particleShader = resourceManager.LoadShader("particle", "resources/shaders/ParticleVertex.glsl", "resources/shaders/ParticleFragment.glsl");
+    const auto& postProcessingShader = resourceManager.LoadShader("postprocess", "resources/shaders/PostProcessVertex.glsl", "resources/shaders/PostProcessFragment.glsl");
 
     // Load textures
 	resourceManager.LoadTexture("background", "resources/textures/background.jpg", false);
@@ -47,6 +48,7 @@ void Game::Initialize()
 
 	// Load levels
 	m_Levels.reserve(4); // Reserve space for levels
+    // m_Levels.push_back(std::make_unique<GameLevel>("resources/levels/solid.level", m_Width, m_Height / 2));
 	m_Levels.push_back(std::make_unique<GameLevel>("resources/levels/one.level", m_Width, m_Height / 2));
 	m_Levels.push_back(std::make_unique<GameLevel>("resources/levels/two.level", m_Width, m_Height / 2));
 	m_Levels.push_back(std::make_unique<GameLevel>("resources/levels/three.level", m_Width, m_Height / 2));
@@ -65,7 +67,10 @@ void Game::Initialize()
     m_Ball = std::make_unique<BallObject>(ballPosition, INITIAL_BALL_VELOCITY, ballTexture, BALL_RADIUS);
 
     // Create particles emitter, parent it to the Ball object
-     m_ParticleEmitter = std::make_unique<ParticleEmitter>(particleShader, particleTexture, 500, m_Ball.get());
+    m_ParticleEmitter = std::make_unique<ParticleEmitter>(particleShader, particleTexture, 500, m_Ball.get());
+
+    // Create post-processing handler
+    m_PostProcess = std::make_unique<PostProcess>(postProcessingShader, m_Width, m_Height);
 }
 
 void Game::ProcessInput(float deltaTime) const
@@ -118,14 +123,28 @@ void Game::Update(float deltaTime)
     // Update particles
     m_ParticleEmitter->Update(deltaTime);
 
+    // Gradually decrease shake time
+    if (m_ShakeTime > 0.0f)
+    {
+        m_ShakeTime -= deltaTime;
+        if (m_ShakeTime <= 0.0f)
+        {
+            // Disable screen shake
+            m_PostProcess->SetMode(PostProcessingFlags::None);
+        }
+    }
+
     // Loss condition
     DoCheckState();
 }
 
-void Game::Render() const
+void Game::Render(float deltaTime) const
 {
     if (m_State == GameState::ACTIVE)
     {
+        // Begin post-processing frame
+        m_PostProcess->BeginFrame();
+
 		// Render background
         auto backgroundTexture = ResourceManager::Instance().GetTexture("background");
         if (backgroundTexture)
@@ -156,10 +175,14 @@ void Game::Render() const
         {
             m_Ball->Draw(m_SpriteRenderer);
         }
+
+        // End post-processing frame, then render potential effects
+        m_PostProcess->EndFrame();
+        m_PostProcess->Render(deltaTime);
     }
 }
 
-void Game::DoCollisions() const
+void Game::DoCollisions()
 {
     // No ball == no collision
     if (!m_Ball) return;
@@ -175,9 +198,19 @@ void Game::DoCollisions() const
         CollisionResult result = Physics2D::CheckCollisionCircleAABB(*m_Ball, *box);
         if (!std::get<0>(result)) continue; // No collision, go on
 
+        // Collision detected !
+
         // Destroy block if possible
         if (!box->IsSolid())
+        {
             box->Destroy();
+        }
+        else
+        {
+            // If block is solid, shake screen
+            m_ShakeTime = 0.05f;
+            m_PostProcess->SetMode(PostProcessingFlags::Shake);
+        }
 
         // Collision resolution
         Direction dir = std::get<1>(result);

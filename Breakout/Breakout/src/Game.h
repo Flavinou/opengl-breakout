@@ -1,8 +1,9 @@
 ﻿#pragma once
 
 #include "GameLevel.h"
-#include "Renderer/SpriteRenderer.h"
 #include "Renderer/ParticleSystem.h"
+#include "Renderer/PostProcessing.h"
+#include "Renderer/SpriteRenderer.h"
 #include "GameObject.h"
 #include "BallObject.h"
 
@@ -39,8 +40,8 @@ public:
 
     void ProcessInput(float deltaTime) const;
     void Update(float deltaTime);
-    void Render() const;
-    void DoCollisions() const;
+    void Render(float deltaTime) const;
+    void DoCollisions();
     void DoCheckState();
 
     void End(GameState value) const;
@@ -50,6 +51,8 @@ public:
     
 private:
     void Initialize();
+private:
+    float m_ShakeTime{0.0f};
 private:
 	int m_Width, m_Height;
     GameState m_State;
@@ -62,4 +65,5 @@ private:
     std::unique_ptr<BallObject> m_Ball;
     std::unique_ptr<SpriteRenderer> m_SpriteRenderer;
     std::unique_ptr<ParticleEmitter> m_ParticleEmitter;
+    std::unique_ptr<PostProcess> m_PostProcess;
 };

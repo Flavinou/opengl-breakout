@@ -60,6 +60,12 @@
     <ClCompile Include="src\Renderer\ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\PostProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Game.h">
@@ -101,6 +107,12 @@
     <ClInclude Include="src\Renderer\ParticleSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\PostProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\SpriteVertex.glsl" />
@@ -111,5 +123,7 @@
     <None Include="resources\levels\four.level" />
     <None Include="resources\shaders\ParticleFragment.glsl" />
     <None Include="resources\shaders\ParticleVertex.glsl" />
+    <None Include="resources\shaders\PostProcessFragment.glsl" />
+    <None Include="resources\shaders\PostProcessVertex.glsl" />
   </ItemGroup>
 </Project>

@@ -24,6 +24,9 @@ ParticleEmitter::ParticleEmitter(const std::shared_ptr<Shader>& shader, const st
 ParticleEmitter::~ParticleEmitter()
 {
     delete[] m_Particles;
+
+    glDeleteBuffers(1, &m_VBO);
+    glDeleteVertexArrays(1, &m_VAO);
 }
 
 void ParticleEmitter::Update(float deltaTime)
