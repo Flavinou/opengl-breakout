@@ -81,7 +81,7 @@ bool GameLevel::Load(const std::string& file, unsigned int viewportWidth, unsign
 	return true; // Successfully loaded the level
 }
 
-void GameLevel::Draw(const std::unique_ptr<SpriteRenderer>& renderer) const
+void GameLevel::Draw(const SpriteRenderer& renderer) const
 {
 	for (unsigned int i = 0; i < Size(); ++i)
 	{

@@ -1,11 +1,12 @@
 ﻿#pragma once
 
+#include "BallObject.h"
 #include "GameLevel.h"
+#include "GameObject.h"
+#include "PowerUp.h"
 #include "Renderer/ParticleSystem.h"
 #include "Renderer/PostProcessing.h"
 #include "Renderer/SpriteRenderer.h"
-#include "GameObject.h"
-#include "BallObject.h"
 
 #include <memory>
 #include <string>
@@ -35,8 +36,17 @@ public:
     Game(const Game& other) = delete;
     ~Game() = default;
 
+    inline const SpriteRenderer& GetRenderer() const { return *m_SpriteRenderer; }
+
+    int GetViewportWidth() const { return m_Width; }
+    int GetViewportHeight() const { return m_Height; }
+
     GameState GetState() const { return m_State; }
     void SetState(GameState value) { m_State = value; }
+
+    GameObject& GetPlayer() const { return *m_Player; }
+    BallObject& GetBall() const { return *m_Ball; }
+    PostProcess& GetPostProcess() const { return *m_PostProcess; }
 
     void ProcessInput(float deltaTime) const;
     void Update(float deltaTime);
@@ -48,7 +58,6 @@ public:
 
     void ResetLevel() const;
     void ResetPlayer() const;
-    
 private:
     void Initialize();
 private:
@@ -66,4 +75,5 @@ private:
     std::unique_ptr<SpriteRenderer> m_SpriteRenderer;
     std::unique_ptr<ParticleEmitter> m_ParticleEmitter;
     std::unique_ptr<PostProcess> m_PostProcess;
+    std::unique_ptr<PowerUpEmitter> m_PowerUpEmitter;
 };

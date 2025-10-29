@@ -18,7 +18,6 @@ void main()
 {
 	gl_Position = vec4(aVertex.xy, 0.0f, 1.0f);
 	vec2 texCoords = aVertex.zw;
-	TexCoords = texCoords;
 
 	if ((u_Mode & 1) != 0) // Enable "chaos"
 	{
@@ -26,10 +25,15 @@ void main()
 		vec2 pos = vec2(texCoords.x + sin(u_Time) * strength, texCoords.y + cos(u_Time) * strength);
 		TexCoords = pos;
 	}
-	if ((u_Mode & 2) != 0) // Enable "confuse"
+	else if ((u_Mode & 2) != 0) // Enable "confuse"
 	{
 		TexCoords = vec2(1.0 - texCoords.x, 1.0 - texCoords.y);
 	}
+	else 
+	{
+		TexCoords = texCoords;
+	}
+
 	if ((u_Mode & 4) != 0) // Enable "shake"
 	{
 		float strength = 0.01f;

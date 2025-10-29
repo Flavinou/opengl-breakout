@@ -15,7 +15,7 @@ public:
 	~GameLevel();
 
 	bool Load(const std::string& file, unsigned int viewportWidth, unsigned int viewportHeight);
-	void Draw(const std::unique_ptr<SpriteRenderer>& renderer) const;
+	void Draw(const SpriteRenderer& renderer) const;
 	bool IsCompleted() const;
 
 	const std::string& GetFileName() { return m_FileName; }

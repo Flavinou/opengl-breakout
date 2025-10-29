@@ -31,6 +31,14 @@ void Game::Initialize()
     const auto& paddleTexture = resourceManager.LoadTexture("paddle", "resources/textures/paddle.png", true);
     const auto& particleTexture = resourceManager.LoadTexture("particle", "resources/textures/particle.png", true);
 
+    // Load power-ups textures
+    resourceManager.LoadTexture("speed", "resources/textures/powerups/powerup_speed.png", true);
+    resourceManager.LoadTexture("sticky", "resources/textures/powerups/powerup_sticky.png", true);
+    resourceManager.LoadTexture("passthrough", "resources/textures/powerups/powerup_passthrough.png", true);
+    resourceManager.LoadTexture("padsizeincrease", "resources/textures/powerups/powerup_increase.png", true);
+    resourceManager.LoadTexture("confuse", "resources/textures/powerups/powerup_confuse.png", true);
+    resourceManager.LoadTexture("chaos", "resources/textures/powerups/powerup_chaos.png", true);
+
     // Configure shaders
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(m_Width), static_cast<float>(m_Height), 0.0f, -1.0f, 1.0f);
     spriteShader->Use();
@@ -71,6 +79,9 @@ void Game::Initialize()
 
     // Create post-processing handler
     m_PostProcess = std::make_unique<PostProcess>(postProcessingShader, m_Width, m_Height);
+
+    // Create power-up emitter
+    m_PowerUpEmitter = std::make_unique<PowerUpEmitter>();
 }
 
 void Game::ProcessInput(float deltaTime) const
@@ -123,6 +134,9 @@ void Game::Update(float deltaTime)
     // Update particles
     m_ParticleEmitter->Update(deltaTime);
 
+    // Update power-ups
+    m_PowerUpEmitter->Update(deltaTime);
+
     // Gradually decrease shake time
     if (m_ShakeTime > 0.0f)
     {
@@ -130,7 +144,7 @@ void Game::Update(float deltaTime)
         if (m_ShakeTime <= 0.0f)
         {
             // Disable screen shake
-            m_PostProcess->SetMode(PostProcessingFlags::None);
+            m_PostProcess->SetMode(PostProcess::None);
         }
     }
 
@@ -155,13 +169,18 @@ void Game::Render(float deltaTime) const
         // Render current level
         if (m_CurrentLevelIndex < m_Levels.size())
         {
-            m_Levels[m_CurrentLevelIndex]->Draw(m_SpriteRenderer);
+            m_Levels[m_CurrentLevelIndex]->Draw(*m_SpriteRenderer);
         }
 
 		// Render player paddle
         if (m_Player)
         {
-			m_Player->Draw(m_SpriteRenderer);
+			m_Player->Draw(*m_SpriteRenderer);
+        }
+
+        if (m_PowerUpEmitter)
+        {
+            m_PowerUpEmitter->Render();
         }
 
         // Render particles
@@ -173,7 +192,7 @@ void Game::Render(float deltaTime) const
         // Render ball
         if (m_Ball)
         {
-            m_Ball->Draw(m_SpriteRenderer);
+            m_Ball->Draw(*m_SpriteRenderer);
         }
 
         // End post-processing frame, then render potential effects
@@ -199,18 +218,22 @@ void Game::DoCollisions()
         if (!std::get<0>(result)) continue; // No collision, go on
 
         // Collision detected !
-
         // Destroy block if possible
         if (!box->IsSolid())
         {
             box->Destroy();
+            m_PowerUpEmitter->SpawnPowerUps(*box);
         }
         else
         {
             // If block is solid, shake screen
             m_ShakeTime = 0.05f;
-            m_PostProcess->SetMode(PostProcessingFlags::Shake);
+            m_PostProcess->SetMode(PostProcess::Shake);
         }
+
+        // No collision resolution at all if ball is passthrough
+        if (m_Ball->IsPassThrough())
+            return;
 
         // Collision resolution
         Direction dir = std::get<1>(result);
@@ -240,6 +263,9 @@ void Game::DoCollisions()
         }
     }
 
+    // Check power-ups collisions
+    m_PowerUpEmitter->DoCollisions(*m_Player);
+
     // Check collisions ball - player
     CollisionResult result = Physics2D::CheckCollisionCircleAABB(*m_Ball, *m_Player);
     if (m_Ball->IsStuck() || !std::get<0>(result)) return; // Ball stuck or no detection == no collision
@@ -258,6 +284,9 @@ void Game::DoCollisions()
     glm::vec2 oldVelocity = m_Ball->GetVelocity();
     glm::vec2 newVelocity = glm::vec2(INITIAL_BALL_VELOCITY.x * amount * strength, -1.0f * abs(oldVelocity.y));
     m_Ball->SetVelocity(glm::normalize(newVelocity) * glm::length(oldVelocity));
+
+    // if "Sticky" power-up is enabled, also stick ball to paddle once new velocity vectors are computed
+    m_Ball->SetStuck(m_Ball->IsSticky());
 }
 
 void Game::DoCheckState()
@@ -265,7 +294,7 @@ void Game::DoCheckState()
     // Ball reached bottom edge -> Lose
     if (m_Ball->GetPosition().y >= m_Height)
     {
-        End(GameState::LOST);
+        End(LOST);
     }
 }
 
@@ -274,12 +303,11 @@ void Game::End(GameState value) const
     // No state modification at the moment, reload the current level each time the ball is not caught by the player
     switch (value)
     {
-    case GameState::LOST:
+    case LOST:
         ResetLevel();
         ResetPlayer();
         break;
-    case GameState::WIN:
-        break;
+    case WIN:
     default:
         break;
     }

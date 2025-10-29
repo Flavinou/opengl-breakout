@@ -38,18 +38,18 @@ Application::Application(int width, int height, const char* title)
 
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mode)
         {
-            const auto game = static_cast<Application*>(glfwGetWindowUserPointer(window));
-            game->OnKeyPressed(key, scancode, action, mode);
+            const auto app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+            app->OnKeyPressed(key, scancode, action, mode);
         });
     glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
         {
-            const auto game = static_cast<Application*>(glfwGetWindowUserPointer(window));
-            game->OnWindowResize(width, height);
+            const auto app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+            app->OnWindowResize(width, height);
         });
     glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
         {
-            const auto game = static_cast<Application*>(glfwGetWindowUserPointer(window));
-            game->OnWindowResize(width, height);
+            const auto app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+            app->OnWindowResize(width, height);
         });
 
     // OpenGL Renderer setup

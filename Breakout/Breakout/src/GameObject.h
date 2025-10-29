@@ -16,7 +16,7 @@ public:
 		const glm::vec4& color = glm::vec4(1.0f), const glm::vec2& velocity = glm::vec2(0.0f, 0.0f));
 	virtual ~GameObject() = default;
 
-	virtual void Draw(const std::unique_ptr<SpriteRenderer>& renderer) const;
+	virtual void Draw(const SpriteRenderer& renderer) const;
 	virtual void Reset(const glm::vec2& position, const glm::vec2& velocity);
 
 	void Destroy() { m_Destroyed = true; }

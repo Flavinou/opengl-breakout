@@ -15,9 +15,9 @@ GameObject::GameObject(const glm::vec2& position, const glm::vec2& size, const s
 {
 }
 
-void GameObject::Draw(const std::unique_ptr<SpriteRenderer>& renderer) const
+void GameObject::Draw(const SpriteRenderer& renderer) const
 {
-	renderer->DrawSprite(m_Sprite, m_Position, m_Size, m_Rotation, m_Color);
+	renderer.DrawSprite(m_Sprite, m_Position, m_Size, m_Rotation, m_Color);
 }
 
 void GameObject::Reset(const glm::vec2& position, const glm::vec2& velocity)

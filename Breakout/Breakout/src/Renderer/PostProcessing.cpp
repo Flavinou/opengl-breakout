@@ -9,7 +9,7 @@
 PostProcess::PostProcess(const std::shared_ptr<Shader>& shader, unsigned int width, unsigned int height)
     : m_Shader(shader)
     , m_Width(width), m_Height(height)
-    , m_Mode(PostProcessingFlags::None)
+    , m_Mode(None)
 {
     // Initialize renderbuffer/framebuffer object
     glGenFramebuffers(1, &m_MSFBO);
@@ -107,9 +107,6 @@ void PostProcess::Render(float deltaTime) const
     m_Shader->Use();
     m_Shader->SetFloat("u_Time", deltaTime);
     m_Shader->SetInteger("u_Mode", m_Mode);
-    m_Shader->SetInteger("u_Confuse", m_Confuse);
-    m_Shader->SetInteger("u_Chaos", m_Chaos);
-    m_Shader->SetInteger("u_Shake", m_Shake);
 
     // Render textured quad
     m_Texture->Bind();

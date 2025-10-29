@@ -1,12 +1,12 @@
 ﻿#include "BallObject.h"
 
 BallObject::BallObject()
-    : m_Radius(12.5f), m_Stuck(true)
+    : m_Radius(12.5f)
 {
 }
 
 BallObject::BallObject(const glm::vec2& position, const glm::vec2& velocity, const std::shared_ptr<Texture2D>& sprite, float radius)
-    : GameObject(position, glm::vec2(radius * 2.0f, radius * 2.0f), sprite, 0.0f, glm::vec4(1.0f), velocity), m_Radius(radius), m_Stuck(true)
+    : GameObject(position, glm::vec2(radius * 2.0f, radius * 2.0f), sprite, 0.0f, glm::vec4(1.0f), velocity), m_Radius(radius)
 {
 }
 
@@ -46,4 +46,6 @@ void BallObject::Reset(const glm::vec2& position, const glm::vec2& velocity) /* 
 {
     super::Reset(position, velocity);
     m_Stuck = true;
+    m_Sticky = false;
+    m_PassThrough = false;
 }

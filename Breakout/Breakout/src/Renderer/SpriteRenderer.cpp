@@ -15,7 +15,7 @@ SpriteRenderer::~SpriteRenderer()
 	glDeleteBuffers(1, &m_QuadVBO);
 }
 
-void SpriteRenderer::DrawSprite(const std::shared_ptr<Texture2D>& texture, const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+void SpriteRenderer::DrawSprite(const std::shared_ptr<Texture2D>& texture, const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color) const
 {
 	m_Shader->Use();
 	glm::mat4 model = glm::mat4(1.0f);

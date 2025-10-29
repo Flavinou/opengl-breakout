@@ -17,7 +17,8 @@ public:
 	void Run();
 
 	inline static Application& Get() { return *s_Instance; }
-	inline GLFWwindow* GetWindow() const { return m_Window; }
+	inline GLFWwindow& GetWindow() const { return *m_Window; }
+	inline Game& GetGame() const { return *m_Game; }
 	const bool* GetKeys() const { return m_Keys; }
 private:
 	void OnKeyPressed(int key, int scancode, int action, int mode);
